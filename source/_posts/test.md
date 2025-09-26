@@ -10,6 +10,5 @@ tags:
 
 这是一张图片：
 CTRL V
-![alt text](image-1.png)
 
-{% asset_img PixPin_2025-09-26_21-42-48.png This is an example image %}
+{% asset_img image.png This is an example image %}
