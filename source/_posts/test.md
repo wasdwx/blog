@@ -9,6 +9,5 @@ tags:
 一切正常？
 
 这是一张图片：
-CTRL V
 
 {% asset_img image.png This is an example image %}
