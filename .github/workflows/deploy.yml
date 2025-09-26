@@ -7,7 +7,7 @@ on:
 
 env:
   # 'ssh' or 'https'
-  DEPLOY_PROTOCOL: 'ssh'
+  DEPLOY_PROTOCOL: 'https'
   REPO_OWNER: 'wasdwx'
   REPO_NAME: 'blog'
 
