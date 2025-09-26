@@ -3,7 +3,13 @@ name: Deploy Hexo to GitHub Pages
 on:
   push:
     branches:
-      - main  # 当推送到 main 分支时触发
+      - main
+
+env:
+  # 'ssh' or 'https'
+  DEPLOY_PROTOCOL: 'ssh'
+  REPO_OWNER: 'wasdwx'
+  REPO_NAME: 'blog'
 
 jobs:
   build:
@@ -11,12 +17,12 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
-          submodules: false  # 禁用子模块检查
+          submodules: false
 
       - name: Setup Node.js
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v4
         with:
           node-version: '22'
 
@@ -38,13 +44,23 @@ jobs:
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
 
+      - name: Setup Deployment Protocol
+        run: |
+          if [ "$DEPLOY_PROTOCOL" == "ssh" ]; then
+            mkdir -p ~/.ssh
+            echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+            chmod 600 ~/.ssh/id_rsa
+            ssh-keyscan github.com >> ~/.ssh/known_hosts
+            echo "DEPLOY_URL=git@github.com:$REPO_OWNER/$REPO_NAME.git" >> $GITHUB_ENV
+          else
+            echo "DEPLOY_URL=https://${{ secrets.BLOG_TOKEN }}@github.com/$REPO_OWNER/$REPO_NAME.git" >> $GITHUB_ENV
+          fi
+
       - name: Deploy to GitHub Pages
-        env:
-          BLOG_TOKEN: ${{ secrets.BLOG_TOKEN }}
         run: |
           cd public/
           git init
           git add -A
-          git commit -m "Create by workflows"
-          git remote add origin https://${{ secrets.BLOG_TOKEN }}@github.com/wasdwx/blog.git
+          git commit -m "Deploy via $DEPLOY_PROTOCOL"
+          git remote add origin $DEPLOY_URL
           git push origin HEAD:gh-pages -f
